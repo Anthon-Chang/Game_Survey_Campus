@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game Survey Campus — Tablero</title>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: #0f0c29; color: white; min-height: 100vh; }
+
+    header {
+      background: linear-gradient(135deg, #6d28d9, #4c1d95);
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    header h1 { font-size: 22px; font-weight: 900; }
+    header p { font-size: 13px; opacity: 0.7; margin-top: 2px; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 16px;
+      padding: 24px;
+    }
+    .stat-card {
+      background: rgba(255,255,255,0.07);
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .stat-card .num {
+      font-size: 42px;
+      font-weight: 900;
+      color: #a78bfa;
+      line-height: 1;
+    }
+    .stat-card .lbl {
+      font-size: 12px;
+      opacity: 0.6;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 6px;
+    }
+
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      padding: 0 24px 24px;
+    }
+    .chart-card {
+      background: rgba(255,255,255,0.07);
+      border-radius: 16px;
+      padding: 20px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .chart-card h3 {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #a78bfa;
+    }
+    canvas { max-height: 250px; }
+
+    .table-section {
+      margin: 0 24px 32px;
+      background: rgba(255,255,255,0.07);
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .table-section h3 {
+      padding: 16px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #a78bfa;
+      text-transform: uppercase;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px 16px; text-align: left; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    th { color: rgba(255,255,255,0.5); font-weight: 600; font-size: 11px; text-transform: uppercase; }
+    td { color: rgba(255,255,255,0.85); }
+    tr:last-child td { border-bottom: none; }
+
+    .badge {
+      background: rgba(167,139,250,0.2);
+      color: #a78bfa;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+    }
+    #last-updated {
+      font-size: 11px;
+      opacity: 0.4;
+      padding: 0 24px 24px;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div>
+      <h1>🎮 Game Survey Campus</h1>
+      <p>Tablero de encuestas en tiempo real</p>
+    </div>
+  </header>
+
+  <div class="stats-grid">
+    <div class="stat-card"><div class="num" id="total">…</div><div class="lbl">Encuestas</div></div>
+    <div class="stat-card"><div class="num" id="juegos">…</div><div class="lbl">Juegos distintos</div></div>
+    <div class="stat-card"><div class="num" id="ubicaciones">…</div><div class="lbl">Ubicaciones</div></div>
+    <div class="stat-card"><div class="num" id="usuarios">…</div><div class="lbl">Usuarios</div></div>
+  </div>
+
+  <div class="charts-grid">
+    <div class="chart-card"><h3>Géneros favoritos</h3><canvas id="chartGenre"></canvas></div>
+    <div class="chart-card"><h3>Plataformas</h3><canvas id="chartPlatform"></canvas></div>
+    <div class="chart-card"><h3>Roles</h3><canvas id="chartRole"></canvas></div>
+    <div class="chart-card"><h3>Ubicaciones en campus</h3><canvas id="chartLocation"></canvas></div>
+    <div class="chart-card"><h3>Top 10 juegos</h3><canvas id="chartGames"></canvas></div>
+    <div class="chart-card"><h3>Rangos de edad</h3><canvas id="chartAge"></canvas></div>
+  </div>
+
+  <div class="table-section">
+    <h3>Últimas encuestas</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Alias</th>
+          <th>Juego</th>
+          <th>Rol</th>
+          <th>Ubicación</th>
+          <th>Plataforma</th>
+          <th>Fecha</th>
+        </tr>
+      </thead>
+      <tbody id="tbody">
+        <tr><td colspan="6" style="text-align:center; padding: 40px; opacity:0.5">Cargando datos…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p id="last-updated"></p>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBOiboQ_u98INfEHAurCQCB08VWPVCvlCk",
+      authDomain: "game-survey-campus.firebaseapp.com",
+      projectId: "game-survey-campus",
+      storageBucket: "game-survey-campus.firebasestorage.app",
+      messagingSenderId: "377386199397",
+      appId: "1:377386199397:web:e404e48d346c34bc63598c"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const COLORS = ['#a78bfa','#34d399','#60a5fa','#f59e0b','#f87171','#38bdf8','#c084fc','#fb923c','#4ade80','#e879f9'];
+
+    function count(arr, key) {
+      return arr.reduce((acc, s) => {
+        const v = s[key] || 'N/A';
+        acc[v] = (acc[v] || 0) + 1;
+        return acc;
+      }, {});
+    }
+
+    const charts = {};
+
+    function makeChart(id, type, labels, data, label) {
+      if (charts[id]) charts[id].destroy();
+      const ctx = document.getElementById(id).getContext('2d');
+      charts[id] = new Chart(ctx, {
+        type,
+        data: {
+          labels,
+          datasets: [{
+            label: label || '',
+            data,
+            backgroundColor: COLORS,
+            borderColor: type === 'bar' ? COLORS : '#0f0c29',
+            borderWidth: type === 'bar' ? 0 : 2,
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              display: type !== 'bar',
+              labels: { color: 'rgba(255,255,255,0.7)', font: { size: 11 } }
+            }
+          },
+          scales: type === 'bar' ? {
+            x: { ticks: { color: 'rgba(255,255,255,0.6)', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+            y: { ticks: { color: 'rgba(255,255,255,0.6)' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+          } : {}
+        }
+      });
+    }
+
+    function topN(obj, n) {
+      return Object.entries(obj).sort((a,b) => b[1]-a[1]).slice(0, n);
+    }
+
+    function renderAll(surveys) {
+      document.getElementById('total').textContent = surveys.length;
+      document.getElementById('juegos').textContent = new Set(surveys.map(s => s.favoriteGame?.toLowerCase())).size;
+      document.getElementById('ubicaciones').textContent = new Set(surveys.map(s => s.campusLocation)).size;
+      document.getElementById('usuarios').textContent = new Set(surveys.map(s => s.userId)).size;
+
+      const genre = count(surveys, 'genre');
+      const platform = count(surveys, 'platform');
+      const role = count(surveys, 'role');
+      const location = count(surveys, 'campusLocation');
+      const games = count(surveys, 'favoriteGame');
+      const age = count(surveys, 'ageRange');
+
+      makeChart('chartGenre', 'doughnut', Object.keys(genre), Object.values(genre));
+      makeChart('chartPlatform', 'pie', Object.keys(platform), Object.values(platform));
+      makeChart('chartRole', 'doughnut', Object.keys(role), Object.values(role));
+      makeChart('chartLocation', 'bar', Object.keys(location), Object.values(location), 'Encuestas');
+      const topGames = topN(games, 10);
+      makeChart('chartGames', 'bar', topGames.map(g=>g[0]), topGames.map(g=>g[1]), 'Encuestas');
+      makeChart('chartAge', 'bar', Object.keys(age), Object.values(age), 'Personas');
+
+      const tbody = document.getElementById('tbody');
+      tbody.innerHTML = surveys.slice(0, 50).map(s => `
+        <tr>
+          <td>${s.alias || '-'}</td>
+          <td><span class="badge">${s.favoriteGame || '-'}</span></td>
+          <td>${s.role || '-'}</td>
+          <td>${s.campusLocation || '-'}</td>
+          <td>${s.platform || '-'}</td>
+          <td>${s.timestamp ? new Date(s.timestamp).toLocaleString('es-EC') : '-'}</td>
+        </tr>
+      `).join('');
+
+      document.getElementById('last-updated').textContent = 'Actualizado: ' + new Date().toLocaleString('es-EC');
+    }
+
+    db.collection('surveys').orderBy('timestamp', 'desc').onSnapshot(snap => {
+      const surveys = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderAll(surveys);
+    });
+  </script>
+</body>
+</html>
