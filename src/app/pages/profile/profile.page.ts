@@ -41,7 +41,7 @@ export class ProfilePage implements OnInit {
   }
 
   openDashboard() {
-    window.open('https://TU_PROJECT.web.app', '_blank');
+    window.open('https://game-survey-campus.web.app', '_blank');
   }
 
   async onLogout() {

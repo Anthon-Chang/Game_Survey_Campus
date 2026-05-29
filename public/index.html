@@ -169,7 +169,7 @@
 
     function count(arr, key) {
       return arr.reduce((acc, s) => {
-        const v = s[key] || 'N/A';
+        const v = (s[key] || 'N/A').toLowerCase().trim();
         acc[v] = (acc[v] || 0) + 1;
         return acc;
       }, {});
@@ -214,22 +214,29 @@
 
     function renderAll(surveys) {
       document.getElementById('total').textContent = surveys.length;
-      document.getElementById('juegos').textContent = new Set(surveys.map(s => s.favoriteGame?.toLowerCase())).size;
-      document.getElementById('ubicaciones').textContent = new Set(surveys.map(s => s.campusLocation)).size;
+      document.getElementById('juegos').textContent = new Set(surveys.map(s => s.favoriteGame?.toLowerCase().trim())).size;
+      document.getElementById('ubicaciones').textContent = new Set(surveys.map(s => s.campusLocation?.toLowerCase().trim())).size;
       document.getElementById('usuarios').textContent = new Set(surveys.map(s => s.userId)).size;
 
       const genre = count(surveys, 'genre');
       const platform = count(surveys, 'platform');
       const role = count(surveys, 'role');
       const location = count(surveys, 'campusLocation');
-      const games = count(surveys, 'favoriteGame');
       const age = count(surveys, 'ageRange');
+
+      // Para juegos normalizamos manualmente
+      const gamesRaw = {};
+      surveys.forEach(s => {
+        const key = (s.favoriteGame || 'N/A').toLowerCase().trim();
+        gamesRaw[key] = (gamesRaw[key] || 0) + 1;
+      });
 
       makeChart('chartGenre', 'doughnut', Object.keys(genre), Object.values(genre));
       makeChart('chartPlatform', 'pie', Object.keys(platform), Object.values(platform));
       makeChart('chartRole', 'doughnut', Object.keys(role), Object.values(role));
       makeChart('chartLocation', 'bar', Object.keys(location), Object.values(location), 'Encuestas');
-      const topGames = topN(games, 10);
+
+      const topGames = topN(gamesRaw, 10);
       makeChart('chartGames', 'bar', topGames.map(g=>g[0]), topGames.map(g=>g[1]), 'Encuestas');
       makeChart('chartAge', 'bar', Object.keys(age), Object.values(age), 'Personas');
 
