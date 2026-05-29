@@ -62,5 +62,5 @@ npx cap open android
 <!-- Agrega aquí capturas de pantalla de la app -->
 
 ## 🔗 Links
-- 📦 [Descargar APK](https://github.com/Anthon-Chang/Game_Survey_Campus/releases)
+- 📦 [Descargar APK](https://github.com/Anthon-Chang/Game_Survey_Campus/releases/download/v1.0.0/app-debug.apk)
 - 📊 [Tablero de encuestas](https://game-survey-campus.web.app)
