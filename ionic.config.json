@@ -1,0 +1,7 @@
+{
+  "name": "game-survey-campus",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
