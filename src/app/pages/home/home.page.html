@@ -1,0 +1,71 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>
+      <ion-icon name="game-controller-outline"></ion-icon>
+      Game Survey
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button routerLink="/profile">
+        <ion-icon slot="icon-only" name="person-circle-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <div class="stats-bar" *ngIf="surveys.length > 0">
+    <div class="stat">
+      <span class="stat-number">{{ surveys.length }}</span>
+      <span class="stat-label">Encuestas</span>
+    </div>
+    <div class="stat">
+      <span class="stat-number">{{ uniqueGames }}</span>
+      <span class="stat-label">Juegos</span>
+    </div>
+    <div class="stat">
+      <span class="stat-number">{{ uniqueLocations }}</span>
+      <span class="stat-label">Ubicaciones</span>
+    </div>
+  </div>
+
+  <ion-list *ngIf="surveys.length > 0">
+    <ion-card *ngFor="let s of surveys" (click)="openDetail(s.id!)" button>
+      <img [src]="s.photoUrl" class="card-img" alt="evidencia" *ngIf="s.photoUrl"/>
+      <ion-card-header>
+        <ion-card-subtitle color="primary">
+          <ion-icon name="game-controller-outline"></ion-icon>
+          {{ s.favoriteGame }}
+        </ion-card-subtitle>
+        <ion-card-title>{{ s.alias }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="card-meta">
+          <span class="badge badge-location">
+            📍 {{ s.campusLocation }}
+          </span>
+          <span class="badge badge-platform">
+            🖥️ {{ s.platform }}
+          </span>
+        </div>
+        <p class="card-comment">{{ s.comment }}</p>
+        <p class="card-date">{{ s.timestamp | date:'dd/MM/yyyy HH:mm' }}</p>
+      </ion-card-content>
+    </ion-card>
+  </ion-list>
+
+  <div class="empty-state" *ngIf="surveys.length === 0 && !loading">
+    <ion-icon name="game-controller-outline" class="empty-icon"></ion-icon>
+    <h3>Sin encuestas aún</h3>
+    <p>Presiona el botón + para registrar tu primera encuesta</p>
+  </div>
+
+  <ion-spinner *ngIf="loading" class="center-spinner"></ion-spinner>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button color="primary" routerLink="/survey">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
+</ion-content>

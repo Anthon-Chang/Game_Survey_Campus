@@ -1,0 +1,59 @@
+<ion-content class="auth-content" fullscreen>
+  <div class="auth-container">
+
+    <div class="auth-header">
+      <ion-icon name="game-controller" class="auth-icon"></ion-icon>
+      <h2>Iniciar Sesión</h2>
+      <p>Game Survey Campus</p>
+    </div>
+
+    <form (ngSubmit)="onLogin()">
+      <ion-list lines="none" class="auth-form">
+
+        <ion-item class="auth-item">
+          <ion-icon name="mail-outline" slot="start" color="primary"></ion-icon>
+          <ion-input
+            type="email"
+            placeholder="Correo electrónico"
+            [(ngModel)]="email"
+            name="email"
+            required>
+          </ion-input>
+        </ion-item>
+
+        <ion-item class="auth-item">
+          <ion-icon name="lock-closed-outline" slot="start" color="primary"></ion-icon>
+          <ion-input
+            [type]="showPassword ? 'text' : 'password'"
+            placeholder="Contraseña"
+            [(ngModel)]="password"
+            name="password"
+            required>
+          </ion-input>
+          <ion-button fill="clear" slot="end" (click)="showPassword = !showPassword">
+            <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'" color="medium"></ion-icon>
+          </ion-button>
+        </ion-item>
+
+      </ion-list>
+
+      <p class="error-msg" *ngIf="errorMsg">{{ errorMsg }}</p>
+
+      <ion-button
+        expand="block"
+        type="submit"
+        color="primary"
+        shape="round"
+        size="large"
+        [disabled]="loading">
+        <ion-spinner *ngIf="loading" name="crescent"></ion-spinner>
+        <span *ngIf="!loading">Ingresar</span>
+      </ion-button>
+    </form>
+
+    <div class="auth-footer">
+      <p>¿No tienes cuenta? <a routerLink="/register">Regístrate aquí</a></p>
+    </div>
+
+  </div>
+</ion-content>

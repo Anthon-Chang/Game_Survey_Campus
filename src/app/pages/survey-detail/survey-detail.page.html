@@ -1,0 +1,90 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Detalle</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content *ngIf="survey">
+
+  <img [src]="survey.photoUrl" alt="evidencia" class="detail-img" *ngIf="survey.photoUrl" />
+
+  <div class="game-api-card" *ngIf="survey.gameInfo">
+    <img [src]="survey.gameInfo.backgroundImage" alt="game banner" class="game-banner"
+      *ngIf="survey.gameInfo.backgroundImage"/>
+    <div class="game-api-info">
+      <h2>{{ survey.gameInfo.name }}</h2>
+      <div class="game-api-chips">
+        <span class="badge badge-rating">
+          ⭐ {{ survey.gameInfo.rating | number:'1.1-1' }} / 5
+        </span>
+        <span class="badge badge-metacritic" *ngIf="survey.gameInfo.metacritic">
+          Metacritic: {{ survey.gameInfo.metacritic }}
+        </span>
+      </div>
+      <p><strong>Géneros:</strong> {{ survey.gameInfo.genres }}</p>
+      <p><strong>Plataformas:</strong> {{ survey.gameInfo.platforms }}</p>
+    </div>
+  </div>
+
+  <ion-list>
+    <ion-list-header>
+      <ion-label color="primary">Datos del encuestado</ion-label>
+    </ion-list-header>
+
+    <ion-item>
+      <ion-icon name="person-outline" slot="start" color="primary"></ion-icon>
+      <ion-label>
+        <h3>{{ survey.alias }}</h3>
+        <p>{{ survey.role }} · {{ survey.ageRange }} años</p>
+      </ion-label>
+    </ion-item>
+
+    <ion-item>
+      <ion-icon name="game-controller-outline" slot="start" color="secondary"></ion-icon>
+      <ion-label>
+        <h3>{{ survey.favoriteGame }}</h3>
+        <p>{{ survey.genre }} · {{ survey.platform }}</p>
+      </ion-label>
+    </ion-item>
+
+    <ion-item *ngIf="survey.comment">
+      <ion-icon name="chatbubble-outline" slot="start" color="tertiary"></ion-icon>
+      <ion-label>
+        <h3>Comentario</h3>
+        <p style="white-space: normal">{{ survey.comment }}</p>
+      </ion-label>
+    </ion-item>
+
+    <ion-list-header>
+      <ion-label color="primary">Ubicación</ion-label>
+    </ion-list-header>
+
+    <ion-item>
+      <ion-icon name="location-outline" slot="start" color="danger"></ion-icon>
+      <ion-label>
+        <h3>{{ survey.campusLocation }}</h3>
+        <p>{{ survey.latitude | number:'1.6-6' }}, {{ survey.longitude | number:'1.6-6' }}</p>
+        <p>{{ survey.timestamp | date:'dd/MM/yyyy HH:mm:ss' }}</p>
+      </ion-label>
+    </ion-item>
+
+    <ion-item button (click)="openMaps()" detail>
+      <ion-icon name="map-outline" slot="start" color="primary"></ion-icon>
+      <ion-label color="primary">Ver en Google Maps</ion-label>
+    </ion-item>
+  </ion-list>
+
+</ion-content>
+
+<ion-content *ngIf="!survey && !loading">
+  <div style="text-align:center; padding: 60px 16px">
+    <p>Encuesta no encontrada</p>
+  </div>
+</ion-content>
+
+<ion-content *ngIf="loading">
+  <ion-spinner style="display:block; margin: 80px auto;"></ion-spinner>
+</ion-content>

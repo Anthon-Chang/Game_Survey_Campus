@@ -1,0 +1,39 @@
+<ion-content class="welcome-content" fullscreen>
+  <div class="welcome-container">
+
+    <div class="welcome-logo">
+      <ion-icon name="game-controller" class="logo-icon"></ion-icon>
+    </div>
+
+    <h1 class="welcome-title">Game Survey<br><span>Campus</span></h1>
+
+    <p class="welcome-subtitle">
+      Estamos probando una app de videojuegos desarrollada en Ionic.<br>
+      ¡Únete y registra tu juego favorito!
+    </p>
+
+    <div class="qr-section">
+      <p class="qr-label">Escanea para descargar</p>
+      <div class="qr-placeholder">
+        <ion-icon name="qr-code-outline" style="font-size: 80px; color: #7c3aed"></ion-icon>
+        <p style="font-size: 12px; color: #888; margin-top: 4px;">QR de descarga</p>
+      </div>
+    </div>
+
+    <div class="welcome-buttons">
+      <ion-button expand="block" color="primary" routerLink="/register" shape="round" size="large">
+        <ion-icon name="person-add-outline" slot="start"></ion-icon>
+        Crear cuenta
+      </ion-button>
+      <ion-button expand="block" fill="outline" color="primary" routerLink="/login" shape="round">
+        <ion-icon name="log-in-outline" slot="start"></ion-icon>
+        Ya tengo cuenta
+      </ion-button>
+    </div>
+
+    <p class="promo-text">
+      "¿Cuál es tu videojuego favorito? Regístralo y aparece en nuestro mapa del campus."
+    </p>
+
+  </div>
+</ion-content>

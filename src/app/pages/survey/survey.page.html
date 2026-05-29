@@ -1,0 +1,193 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Nueva Encuesta</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <form (ngSubmit)="onSubmit()" #surveyForm="ngForm">
+
+    <!-- DATOS DEL ENCUESTADO -->
+    <ion-list-header>
+      <ion-label color="primary">Datos del encuestado</ion-label>
+    </ion-list-header>
+
+    <ion-list>
+      <ion-item>
+        <ion-label position="floating">Nombre o alias *</ion-label>
+        <ion-input [(ngModel)]="survey.alias" name="alias" required></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label>Rango de edad *</ion-label>
+        <ion-select [(ngModel)]="survey.ageRange" name="ageRange" placeholder="Selecciona">
+          <ion-select-option value="10-17">10 - 17 años</ion-select-option>
+          <ion-select-option value="18-25">18 - 25 años</ion-select-option>
+          <ion-select-option value="26-35">26 - 35 años</ion-select-option>
+          <ion-select-option value="36-50">36 - 50 años</ion-select-option>
+          <ion-select-option value="51+">51+ años</ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-item>
+        <ion-label>Rol *</ion-label>
+        <ion-select [(ngModel)]="survey.role" name="role" placeholder="Selecciona">
+          <ion-select-option value="estudiante">Estudiante</ion-select-option>
+          <ion-select-option value="docente">Docente</ion-select-option>
+          <ion-select-option value="administrativo">Administrativo</ion-select-option>
+          <ion-select-option value="visitante">Visitante</ion-select-option>
+        </ion-select>
+      </ion-item>
+    </ion-list>
+
+    <!-- VIDEOJUEGO -->
+    <ion-list-header>
+      <ion-label color="primary">Videojuego favorito</ion-label>
+    </ion-list-header>
+
+    <ion-list>
+      <ion-item>
+        <ion-label position="floating">Nombre del juego *</ion-label>
+        <ion-input
+          [(ngModel)]="survey.favoriteGame"
+          name="favoriteGame"
+          required
+          (ionBlur)="searchGame()">
+        </ion-input>
+      </ion-item>
+
+      <!-- Resultado API -->
+      <div class="game-result" *ngIf="gameInfo">
+        <img [src]="gameInfo.backgroundImage" alt="game" class="game-img" *ngIf="gameInfo.backgroundImage"/>
+        <div class="game-details">
+          <h4>{{ gameInfo.name }}</h4>
+          <p><ion-icon name="star"></ion-icon> {{ gameInfo.rating | number:'1.1-1' }} / 5</p>
+          <p>Género: {{ gameInfo.genres }}</p>
+          <p>Plataformas: {{ gameInfo.platforms }}</p>
+          <p *ngIf="gameInfo.metacritic">Metacritic: {{ gameInfo.metacritic }}</p>
+        </div>
+      </div>
+
+      <div class="game-searching" *ngIf="searchingGame">
+        <ion-spinner name="crescent" color="primary"></ion-spinner>
+        <span>Buscando en API...</span>
+      </div>
+
+      <div class="game-not-found" *ngIf="gameNotFound">
+        <ion-icon name="alert-circle-outline" color="warning"></ion-icon>
+        <span>Juego no encontrado, pero se guardará el nombre.</span>
+      </div>
+
+      <ion-item>
+        <ion-label>Plataforma *</ion-label>
+        <ion-select [(ngModel)]="survey.platform" name="platform" placeholder="Selecciona">
+          <ion-select-option value="móvil">Móvil</ion-select-option>
+          <ion-select-option value="consola">Consola</ion-select-option>
+          <ion-select-option value="PC">PC</ion-select-option>
+          <ion-select-option value="navegador">Navegador</ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-item>
+        <ion-label>Género favorito *</ion-label>
+        <ion-select [(ngModel)]="survey.genre" name="genre" placeholder="Selecciona">
+          <ion-select-option value="acción">Acción</ion-select-option>
+          <ion-select-option value="aventura">Aventura</ion-select-option>
+          <ion-select-option value="deportes">Deportes</ion-select-option>
+          <ion-select-option value="estrategia">Estrategia</ion-select-option>
+          <ion-select-option value="RPG">RPG</ion-select-option>
+          <ion-select-option value="terror">Terror</ion-select-option>
+          <ion-select-option value="simulación">Simulación</ion-select-option>
+          <ion-select-option value="otro">Otro</ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="floating">Comentario breve</ion-label>
+        <ion-textarea
+          [(ngModel)]="survey.comment"
+          name="comment"
+          rows="3"
+          placeholder="¿Por qué es tu favorito?">
+        </ion-textarea>
+      </ion-item>
+    </ion-list>
+
+    <!-- UBICACIÓN -->
+    <ion-list-header>
+      <ion-label color="primary">Ubicación</ion-label>
+    </ion-list-header>
+
+    <ion-list>
+      <ion-item>
+        <ion-label>Lugar del campus *</ion-label>
+        <ion-select [(ngModel)]="survey.campusLocation" name="campusLocation" placeholder="Selecciona">
+          <ion-select-option value="biblioteca">Biblioteca</ion-select-option>
+          <ion-select-option value="cafetería">Cafetería</ion-select-option>
+          <ion-select-option value="patio central">Patio Central</ion-select-option>
+          <ion-select-option value="laboratorio">Laboratorio</ion-select-option>
+          <ion-select-option value="entrada principal">Entrada Principal</ion-select-option>
+          <ion-select-option value="aulas">Aulas</ion-select-option>
+          <ion-select-option value="otro">Otro</ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-item button (click)="getLocation()" detail>
+        <ion-icon name="location-outline" slot="start" color="primary"></ion-icon>
+        <ion-label>
+          <h3>Obtener GPS</h3>
+          <p *ngIf="!locationObtained">Toca para capturar tu ubicación</p>
+          <p *ngIf="locationObtained">
+            ✅ {{ survey.latitude | number:'1.4-4' }}, {{ survey.longitude | number:'1.4-4' }}
+          </p>
+        </ion-label>
+        <ion-spinner *ngIf="gettingLocation" name="crescent" slot="end"></ion-spinner>
+      </ion-item>
+    </ion-list>
+
+    <!-- FOTO -->
+    <ion-list-header>
+      <ion-label color="primary">Evidencia fotográfica</ion-label>
+    </ion-list-header>
+
+    <ion-list>
+      <div class="photo-section">
+        <div class="photo-preview" *ngIf="photoBase64">
+          <img [src]="'data:image/jpeg;base64,' + photoBase64" alt="preview" />
+          <ion-button fill="clear" color="danger" (click)="photoBase64 = ''">
+            <ion-icon name="close-circle"></ion-icon>
+          </ion-button>
+        </div>
+        <div class="photo-buttons">
+          <ion-button expand="block" fill="outline" color="primary" (click)="takePicture()">
+            <ion-icon name="camera-outline" slot="start"></ion-icon>
+            Tomar foto
+          </ion-button>
+          <ion-button expand="block" fill="outline" color="secondary" (click)="pickGallery()">
+            <ion-icon name="images-outline" slot="start"></ion-icon>
+            Desde galería
+          </ion-button>
+        </div>
+      </div>
+    </ion-list>
+
+    <!-- SUBMIT -->
+    <div class="submit-section">
+      <ion-button
+        expand="block"
+        type="submit"
+        color="primary"
+        size="large"
+        shape="round"
+        [disabled]="saving || !isFormValid()">
+        <ion-spinner *ngIf="saving" name="crescent"></ion-spinner>
+        <ion-icon *ngIf="!saving" name="checkmark-circle-outline" slot="start"></ion-icon>
+        <span *ngIf="!saving">Guardar encuesta</span>
+      </ion-button>
+    </div>
+
+  </form>
+</ion-content>
